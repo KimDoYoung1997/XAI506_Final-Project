@@ -34,7 +34,7 @@ from smolvlm_helpers import build_broadcast_line, make_var_report, print_var_rep
 from tts_helpers import run_commentary
 
 ROOT = Path(__file__).resolve().parent
-DEFAULT_IMAGE = ROOT / "imgs" / "offside2.png"
+DEFAULT_IMAGE = ROOT / "imgs" / "offside.png"
 OUTPUT_DIR = ROOT / "outputs"
 
 

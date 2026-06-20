@@ -78,7 +78,7 @@ pip install -r requirements.txt
 
 ## 실행
 
-기본값: `imgs/offside2.png` + VAR 해설(SmolVLM2 + Qwen3-TTS, speaker `Ryan`, World Cup 중계 톤).
+기본값: `imgs/offside.png` + VAR 해설(SmolVLM2 + Qwen3-TTS, speaker `Ryan`, World Cup 중계 톤).
 
 ```bash
 python demo.py
