@@ -12,8 +12,16 @@ import torch
 from utils import release_torch_memory
 
 MODEL_ID = "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice"
-DEFAULT_SPEAKER = "Ryan"
-DEFAULT_INSTRUCT = "Shout like a World Cup goal commentator!"
+DEFAULT_SPEAKER = "Sohee"
+DEFAULT_LANGUAGE = "Korean"
+DEFAULT_INSTRUCT = "월드컵 결승 중계처럼 힘차고 드라마틱하게 외치세요."
+
+
+def pick_qwen_language(text: str) -> str:
+    override = os.environ.get("QWEN_TTS_LANGUAGE", "").strip()
+    if override:
+        return override
+    return DEFAULT_LANGUAGE
 
 
 def pick_qwen_tts_device(verbose: bool = True) -> str:
@@ -89,9 +97,11 @@ def synthesize_commentary(model, text: str) -> tuple[np.ndarray, int]:
     text = text.strip()
     if not text:
         raise ValueError("Empty broadcast text.")
+    language = pick_qwen_language(text)
+    print(f"[TTS] language={language}")
     wavs, sr = model.generate_custom_voice(
         text=text,
-        language="English",
+        language=language,
         speaker=pick_qwen_speaker(),
         instruct=pick_qwen_instruct(),
     )

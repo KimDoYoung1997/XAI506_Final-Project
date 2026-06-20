@@ -36,11 +36,62 @@ from tts_helpers import run_commentary
 ROOT = Path(__file__).resolve().parent
 DEFAULT_IMAGE = ROOT / "imgs" / "offside.png"
 OUTPUT_DIR = ROOT / "outputs"
+OFFSIDE_FLAG_IMAGE = ROOT / "imgs" / "offside_flag.png"
 
 
 def _play_audio(path: Path) -> None:
     if sys.platform == "darwin":
         subprocess.run(["afplay", str(path)], check=False)
+
+
+def _play_audio_with_offside_flag(wav_path: Path, flag_path: Path) -> None:
+    """Show assistant-referee flag image while commentary audio plays."""
+    import time
+
+    from PyQt5.QtCore import Qt
+    from PyQt5.QtGui import QPixmap
+    from PyQt5.QtWidgets import QApplication, QLabel, QVBoxLayout, QWidget
+
+    player = subprocess.Popen(["afplay", str(wav_path)])
+
+    app = QApplication.instance()
+    created_app = False
+    if app is None:
+        app = QApplication(sys.argv)
+        created_app = True
+
+    win = QWidget()
+    win.setWindowTitle("OFFSIDE — Assistant Ref Flag")
+    layout = QVBoxLayout(win)
+    label = QLabel()
+    pixmap = QPixmap(str(flag_path))
+    max_w = 520
+    if pixmap.width() > max_w:
+        pixmap = pixmap.scaledToWidth(max_w, Qt.SmoothTransformation)
+    label.setPixmap(pixmap)
+    label.setAlignment(Qt.AlignCenter)
+    layout.addWidget(label)
+    win.adjustSize()
+    win.show()
+
+    while player.poll() is None:
+        app.processEvents()
+        time.sleep(0.03)
+
+    win.close()
+    if created_app:
+        try:
+            app.quit()
+        except Exception:
+            pass
+
+
+def _play_commentary(wav_path: Path, is_offside: bool) -> None:
+    if is_offside and OFFSIDE_FLAG_IMAGE.exists():
+        print(f"Showing offside flag: {OFFSIDE_FLAG_IMAGE}")
+        _play_audio_with_offside_flag(wav_path, OFFSIDE_FLAG_IMAGE)
+    else:
+        _play_audio(wav_path)
 
 
 def run_sam2_phase(img_pil: Image.Image, img_np: np.ndarray) -> tuple[
@@ -77,7 +128,7 @@ def run_explain_phase(result: OffsideResult, offside_path: Path, stem: str) -> N
 
     wav_path = OUTPUT_DIR / f"{stem}_commentary.wav"
     run_commentary(broadcast, wav_path)
-    _play_audio(wav_path)
+    _play_commentary(wav_path, result.is_offside)
 
 
 def run(

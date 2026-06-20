@@ -148,41 +148,55 @@ def _generate_answer(
 
 def build_analysis_prompt(*, is_offside: bool) -> str:
     if is_offside:
-        hint = "The attacker appears ahead of the last defender — offside suspected."
+        hint = "공격수가 마지막 수비수보다 앞에 있는 것으로 보입니다 — 오프사이드 의심."
     else:
-        hint = "The attacker appears level or behind the defender — not offside."
-    return f"""Soccer VAR still image. Red = attacker, blue = defender, yellow = offside line.
+        hint = "공격수가 수비수와 같은 라인이거나 뒤에 있는 것으로 보입니다 — 온사이드."
+    return f"""축구 VAR 정지 화면. 빨강=공격수, 파랑=수비수, 노랑=오프사이드 라인.
 {hint}
 
-Write ONE English sentence only (no pixels, no numbers, no measurements).
-Start with: Analysis:"""
+반드시 한국어로만, 픽셀·숫자·거리 없이 문장 하나만 작성하세요. 영어 사용 금지.
+시작: 분석:"""
 
 
 def build_broadcast_line(is_offside: bool) -> str:
     """Fixed live-TV shout for TTS — never mentions pixels."""
     if is_offside:
-        return "Oh! Flag's up! The attacker looks beyond the last defender! Offside!"
-    return "Play on! The attacker stays onside! No flag here!"
+        return "오! 깃발이 올라갔습니다! 공격수가 마지막 수비수보다 앞에 있습니다! 오프사이드!"
+    return "플레이 계속! 공격수는 온사이드입니다! 깃발 없습니다!"
+
+
+def _has_pixel_refs(text: str) -> bool:
+    lower = text.lower()
+    return "px" in lower or "pixel" in lower or "픽셀" in text
+
+
+def _has_hangul(text: str) -> bool:
+    return any("\uac00" <= c <= "\ud7a3" for c in text)
 
 
 def extract_analysis_line(report: str, fallback: str) -> str:
+    patterns = (
+        r"^\s*분석\s*:\s*(.+)\s*$",
+        r"^\s*Analysis\s*:\s*(.+)\s*$",
+    )
     for line in report.splitlines():
-        m = re.match(r"^\s*Analysis\s*:\s*(.+)\s*$", line, flags=re.IGNORECASE)
-        if m:
-            text = m.group(1).strip()
-            if text and "px" not in text.lower() and "pixel" not in text.lower():
-                return text
+        for pattern in patterns:
+            m = re.match(pattern, line, flags=re.IGNORECASE)
+            if m:
+                text = m.group(1).strip()
+                if text and _has_hangul(text) and not _has_pixel_refs(text):
+                    return text
     return fallback
 
 
 def fallback_analysis(is_offside: bool) -> str:
     if is_offside:
-        return "The attacker is past the last defender — offside position is suspected."
-    return "The attacker is not beyond the last defender on this frame."
+        return "공격수가 마지막 수비수보다 앞에 있어 오프사이드 포지션이 의심됩니다."
+    return "이 프레임에서 공격수는 마지막 수비수보다 앞에 있지 않습니다."
 
 
 def compose_var_report(analysis: str, broadcast: str) -> str:
-    return f"Analysis: {analysis}\nBroadcast: {broadcast}\n"
+    return f"분석: {analysis}\n중계: {broadcast}\n"
 
 
 def generate_var_report(

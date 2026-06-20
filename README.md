@@ -78,7 +78,7 @@ pip install -r requirements.txt
 
 ## 실행
 
-기본값: `imgs/offside.png` + VAR 해설(SmolVLM2 + Qwen3-TTS, speaker `Ryan`, World Cup 중계 톤).
+기본값: `imgs/offside.png` + VAR 해설(SmolVLM2 + Qwen3-TTS, **한국어**, speaker `Sohee`).
 
 ```bash
 python demo.py
@@ -120,8 +120,9 @@ python demo.py --image imgs/offside.png
 SAM2_DEVICE=mps python demo.py
 SMOLVLM_DEVICE=mps python demo.py
 QWEN_TTS_DEVICE=cpu python demo.py          # Mac 권장
-QWEN_TTS_SPEAKER=Aiden python demo.py
-QWEN_TTS_INSTRUCT="Speak calmly like a VAR official." python demo.py
+QWEN_TTS_SPEAKER=Ryan python demo.py        # 영어 speaker (언어는 기본 Korean)
+QWEN_TTS_LANGUAGE=English python demo.py    # TTS 언어 강제 (기본: Korean)
+QWEN_TTS_INSTRUCT="차분하게 VAR 심판처럼 말하세요." python demo.py
 ```
 
 ---
@@ -148,5 +149,5 @@ QWEN_TTS_INSTRUCT="Speak calmly like a VAR official." python demo.py
 
 - **Qt 창이 안 뜸**: SSH·원격 서버 등 헤드리스 환경에서는 PyQt5 GUI가 동작하지 않습니다.
 - **`transformers` 버전**: `transformers>=4.50.0` 이상 필요 (SAM2 API).
-- **Mac TTS**: Qwen3-TTS는 **CPU** 기본 권장 (`QWEN_TTS_DEVICE=cpu`). 기본 instruct: `Shout like a World Cup goal commentator!`
+- **Mac TTS**: Qwen3-TTS는 **CPU** 기본 권장 (`QWEN_TTS_DEVICE=cpu`). 기본 **한국어** + speaker `Sohee`.
 - **모델 다운로드 실패**: 네트워크·HF Hub 접근 확인 또는 `huggingface-cli login`.
