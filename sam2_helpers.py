@@ -1,4 +1,4 @@
-"""SAM2 inference + PyQt5 point picker (from scripts/01_hf_sam2.ipynb)."""
+"""SAM2 inference + PyQt5 point picker."""
 
 from __future__ import annotations
 
@@ -10,6 +10,8 @@ import torch
 from PIL import Image
 from scipy.ndimage import binary_fill_holes, label
 from transformers import Sam2Model, Sam2Processor
+
+from utils import release_torch_memory
 
 MODEL_ID = "facebook/sam2.1-hiera-base-plus"
 
@@ -117,6 +119,11 @@ def load_sam2(device: torch.device | None = None):
     model.eval()
     print(f"loaded: {MODEL_ID} on {device}")
     return model, processor, device
+
+
+def release_sam2(model, processor) -> None:
+    del model, processor
+    release_torch_memory("SAM2")
 
 
 def pick_pos_neg_points_qt(

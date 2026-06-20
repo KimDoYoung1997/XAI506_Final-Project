@@ -1,5 +1,5 @@
 # =============================================================================
-# XAI506 Final Project — demo.py (오프사이드 SAM2 데모)
+# XAI506 Final Project — demo.py (오프사이드 SAM2 + VLM + TTS 데모)
 #
 # Python: 3.10–3.12 권장
 #
@@ -15,8 +15,9 @@
 torch>=2.1.0
 torchvision>=0.16.0
 
-# --- Hugging Face (SAM2: facebook/sam2.1-hiera-base-plus) ---
-transformers>=4.50.0
+# --- Hugging Face (SAM2 + SmolVLM2 + Qwen3-TTS) ---
+# qwen-tts는 transformers 5.x와 충돌할 수 있어 4.x로 고정합니다.
+transformers>=4.50.0,<5.0.0
 accelerate>=1.0.0
 safetensors>=0.4.0
 huggingface-hub>=0.20.0
@@ -28,18 +29,12 @@ matplotlib>=3.8.0
 
 # --- demo.py / sam2_helpers.py ---
 scipy>=1.11.0          # 마스크 후처리 (binary_fill_holes, label)
-PyQt5>=5.15.0          # 선수·공 클릭 픽커 (데스크톱 GUI 필요)
+PyQt5>=5.15.0          # 선수 클릭 픽커 (데스크톱 GUI 필요)
 
-# =============================================================================
-# 선택 사항
-# =============================================================================
+# --- SmolVLM2 (--explain / smolvlm_helpers.py) ---
+num2words>=0.5.0
 
-# scripts/ 노트북(Jupyter) 실행 시
-# notebook>=7.0.0
-# ipykernel>=6.29.0
-
-# 03_hf_smolvlm.ipynb
-# num2words>=0.5.0
-
-# 02_hf_depth_anything.ipynb 3D 시각화
-# open3d>=0.18.0
+# --- Qwen3-TTS (tts_helpers.py) ---
+qwen-tts>=0.1.0
+soundfile>=0.12.0
+torchaudio>=2.1.0
