@@ -42,6 +42,8 @@ OFFSIDE_FLAG_IMAGE = ROOT / "imgs" / "offside_flag.png"
 def _play_audio(path: Path) -> None:
     if sys.platform == "darwin":
         subprocess.run(["afplay", str(path)], check=False)
+    else:
+        print(f"[audio] Saved to {path} (auto-play is macOS only; open the file manually)")
 
 
 def _play_audio_with_offside_flag(wav_path: Path, flag_path: Path) -> None:
@@ -52,7 +54,12 @@ def _play_audio_with_offside_flag(wav_path: Path, flag_path: Path) -> None:
     from PyQt5.QtGui import QPixmap
     from PyQt5.QtWidgets import QApplication, QLabel, QVBoxLayout, QWidget
 
-    player = subprocess.Popen(["afplay", str(wav_path)])
+    player_cmd = ["afplay", str(wav_path)] if sys.platform == "darwin" else None
+    if player_cmd is None:
+        _play_audio(wav_path)
+        return
+
+    player = subprocess.Popen(player_cmd)
 
     app = QApplication.instance()
     created_app = False
@@ -134,7 +141,7 @@ def run_explain_phase(result: OffsideResult, offside_path: Path, stem: str) -> N
 def run(
     image_path: Path,
     show_plot: bool = True,
-    with_explain: bool = False,
+    with_explain: bool = True,
 ) -> OffsideResult:
     img_pil = Image.open(image_path).convert("RGB")
     img_np = np.array(img_pil)

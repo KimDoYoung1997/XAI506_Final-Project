@@ -17,7 +17,7 @@ DEFAULT_LANGUAGE = "Korean"
 DEFAULT_INSTRUCT = "월드컵 결승 중계처럼 힘차고 드라마틱하게 외치세요."
 
 
-def pick_qwen_language(text: str) -> str:
+def pick_qwen_language() -> str:
     override = os.environ.get("QWEN_TTS_LANGUAGE", "").strip()
     if override:
         return override
@@ -97,7 +97,7 @@ def synthesize_commentary(model, text: str) -> tuple[np.ndarray, int]:
     text = text.strip()
     if not text:
         raise ValueError("Empty broadcast text.")
-    language = pick_qwen_language(text)
+    language = pick_qwen_language()
     print(f"[TTS] language={language}")
     wavs, sr = model.generate_custom_voice(
         text=text,
